@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+  <meta charset="UTF-8">
+  <title></title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    body, html {
+      width: 600px;
+      height: 700px;
+      margin: 0 auto;
+    }
+
+    #map {
+      width: 300px;
+      height: 500px;
+      background-color: #ccc;
+      border: 1px solid #404060;
+      position: relative;
+      top: 50px;
+      /*left: 100px;*/
+      /*margin: 0 auto;*/
+      overflow: hidden;
+    }
+
+    #map div {
+      position: absolute;
+    }
+
+    #map > p {
+      height: 500px;
+      font: 60px/500px '黑体';
+      width: 299px;
+      text-align: center;
+      color: red;
+      position: absolute;
+      z-index: 10;
+      background-color: #ccc;
+    }
+    #map>span {
+      font: 40px/100px '黑体';
+      text-align: center;
+      color: red;
+      position: absolute;
+      /*left: 100px;*/
+      z-index: 11;
+      bottom: 100px;
+      width: 300px;
+    }
+    .active {
+      display: none;
+    }
+
+    #btn {
+      width: 100px;
+      height: 40px;
+      font-size: 20px;
+      margin-top: 70px;
+      margin-left: 30px;
+    }
+
+    #stop {
+      width: 100px;
+      height: 40px;
+      font-size: 20px;
+      margin: 40px;
+    }
+
+    #record {
+      width: 200px;
+      height: 40px;
+      position: absolute;
+      /*left: 100px;*/
+      z-index: 11;
+    }
+
+    #record p {
+      font-size: 20px;
+      line-height: 20px;
+      color: red;
+    }
+
+    #scare, #live {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<div id="map"><p>飞机大战</p>
+  <span>第二关</span>
+  <div id="record">
+    <p>分数：<span id="scare">0</span></p>
+
+    <p>生命：<span id="live">♥♥♥</span></p>
+  </div>
+</div>
+<button id="btn">开始游戏</button>
+<button id="stop">暂停</button>
+<script>
+  //1 地图
+  (function () {
+    function Map() {
+
+    }
+    Map.prototype.Over = function () {
+      var map = document.getElementById('map');
+      map.innerHTML = "<p>飞机大战</p>"+
+          "<span>第二关</span>"+
+          "<div id='record'>" +
+              "<p>分数：<span id='scare'>0</span></p>"+
+              "<p>生命：<span id='live'>♥♥♥</span></p>"+
+          "</div>";
+    };
+    window.Map = Map;
+  }());
+  //2 飞机
+  (function () {
+    function Plane(options) {
+      this.width = options.width || 5;
+      this.height = options.height || 5;
+      this.body = [
+        {x: 26, y: 0 + 84},
+        {x: 26, y: 1 + 84},
+        {x: 26, y: 2 + 84},
+        {x: 26, y: 3 + 84},
+        {x: 26, y: 4 + 84},
+        {x: 26, y: 5 + 84},
+        {x: 26, y: 6 + 84},
+        {x: 26, y: 7 + 84},
+        {x: 26, y: 8 + 84},
+        {x: 26, y: 9 + 84},
+        {x: 26, y: 10 + 84},
+        {x: 26, y: 11 + 84},
+        {x: 26, y: 12 + 84},
+        {x: 26, y: 13 + 84},
+        {x: 26, y: 14 + 84},
+        {x: 25, y: 1 + 84},
+        {x: 27, y: 1 + 84},
+        {x: 25, y: 2 + 84},
+        {x: 27, y: 2 + 84},
+        {x: 24, y: 3 + 84},
+        {x: 25, y: 3 + 84},
+        {x: 27, y: 3 + 84},
+        {x: 28, y: 3 + 84},
+        {x: 23, y: 4 + 84},
+        {x: 24, y: 4 + 84},
+        {x: 25, y: 4 + 84},
+        {x: 27, y: 4 + 84},
+        {x: 28, y: 4 + 84},
+        {x: 29, y: 4 + 84},
+        {x: 22, y: 5 + 84},
+        {x: 23, y: 5 + 84},
+        {x: 24, y: 5 + 84},
+        {x: 25, y: 5 + 84},
+        {x: 27, y: 5 + 84},
+        {x: 28, y: 5 + 84},
+        {x: 29, y: 5 + 84},
+        {x: 30, y: 5 + 84},
+        {x: 21, y: 6 + 84},
+        {x: 22, y: 6 + 84},
+        {x: 23, y: 6 + 84},
+        {x: 24, y: 6 + 84},
+        {x: 25, y: 6 + 84},
+        {x: 27, y: 6 + 84},
+        {x: 28, y: 6 + 84},
+        {x: 29, y: 6 + 84},
+        {x: 30, y: 6 + 84},
+        {x: 31, y: 6 + 84},
+        {x: 20, y: 7 + 84},
+        {x: 21, y: 7 + 84},
+        {x: 22, y: 7 + 84},
+        {x: 23, y: 7 + 84},
+        {x: 24, y: 7 + 84},
+        {x: 25, y: 7 + 84},
+        {x: 27, y: 7 + 84},
+        {x: 28, y: 7 + 84},
+        {x: 29, y: 7 + 84},
+        {x: 30, y: 7 + 84},
+        {x: 31, y: 7 + 84},
+        {x: 32, y: 7 + 84},
+        {x: 25, y: 8 + 84},
+        {x: 27, y: 8 + 84},
+        {x: 25, y: 9 + 84},
+        {x: 27, y: 9 + 84},
+        {x: 25, y: 10 + 84},
+        {x: 27, y: 10 + 84},
+        {x: 25, y: 11 + 84},
+        {x: 27, y: 11 + 84},
+        {x: 24, y: 12 + 84},
+        {x: 25, y: 12 + 84},
+        {x: 27, y: 12 + 84},
+        {x: 28, y: 12 + 84},
+        {x: 23, y: 13 + 84},
+        {x: 24, y: 13 + 84},
+        {x: 25, y: 13 + 84},
+        {x: 27, y: 13 + 84},
+        {x: 28, y: 13 + 84},
+        {x: 29, y: 13 + 84},
+        {x: 22, y: 14 + 84},
+        {x: 23, y: 14 + 84},
+        {x: 24, y: 14 + 84},
+        {x: 25, y: 14 + 84},
+        {x: 27, y: 14 + 84},
+        {x: 28, y: 14 + 84},
+        {x: 29, y: 14 + 84},
+        {x: 30, y: 14 + 84},
+      ];
+      this.elements = [];
+      this.planeBollets_elements = [];
+      this.map = options.map;
+      this.direction = '';
+      this.live = 3;
+    }
+
+    Plane.prototype.init = function (bgcolor, die) {
+//      console.log('新飞机');
+      if (die) {
+        this.live--;
+        console.log(this.live);
+        var live = document.getElementById('live');
+        live.innerText = '';
+        for (var i = this.live; i > 0; i--) {
+          live.innerText += '♥';
+        }
+        if (this.live == 0) {
+          console.log('游戏结束');
+          var scare = document.getElementById('scare').innerText;
+          var live = document.getElementById('live').innerText;
+          var map = document.getElementById('map');
+          map.innerHTML = "<p>GAME OVER</p>"+
+              "<span>第二关</span>"+
+              "<div id='record'>" +
+              "<p>分数：<span id='scare'>"+scare+"</span></p>"+
+              "<p>生命：<span id='live'>"+live+"</span></p>"+
+              "</div>";
+          this.body = [{x:0}];
+          for (var i = this.elements.length - 1; i >= 0; i--) {
+            this.elements[i].remove();
+          }
+          this.elements = [];
+//          this.body = [];
+          if (this.planeBollets_elements != []) {
+//        console.log(this.planeBollets_elements);
+            for (var i = this.planeBollets_elements.length - 1; i >= 0; i--) {
+//          this.map.removeChild(this.planeBollets_elements[i]);
+              this.planeBollets_elements[i].remove();
+            }
+            this.planeBollets_elements = [];
+          }
+          play1.plane.bollet('die');
+          play1.direction('die');
+          if(planeMoveNum!=undefined){
+            clearInterval(planeMoveNum);
+          }
+
+//          play1.init('[]');
+
+//          play1.hinder.body = [];
+//          play1.plane.bollet('die');
+//          play1.hinder.move('die');
+//          play1.prototype.position('die');
+
+//          clearInterval(planeMoveNum);
+//          clearInterval(planeGiveNum);
+        } else {
+          clearInterval(planeGiveNum);
+          play1.plane.bollet();
+        }
+
+      }
+      //检查地图上是否有飞机
+      for (var i = this.elements.length - 1; i >= 0; i--) {
+        this.elements[i].remove();
+      }
+      this.elements = [];
+      //绘制飞机
+      for (var i = 0; i < this.body.length; i++) {
+        var planeBody = document.createElement('div');
+        planeBody.style.width = this.width + 'px';
+        planeBody.style.height = this.height + 'px';
+        planeBody.style.backgroundColor = bgcolor || '#666';
+        planeBody.style.left = this.body[i].x * this.width + 'px';
+        planeBody.style.top = this.body[i].y * this.height + 'px';
+        var map = document.getElementById('map');
+        map.appendChild(planeBody);
+        this.elements.push(planeBody);
+      }
+//      this.bollet();
+    };
+    Plane.prototype.move = function () {
+      //var planeBody = this.body;
+//      console.log(this.direction);
+      switch (this.direction) {
+        case 'left':
+//            console.log('左');
+          if (this.body[0].x > 6) {
+            for (var i = 0; i < this.body.length; i++) {
+              this.body[i].x = this.body[i].x - 1;
+            }
+          }
+          break;
+        case 'up':
+          if (this.body[0].y > 10) {
+            for (var i = 0; i < this.body.length; i++) {
+              this.body[i].y = this.body[i].y - 1;
+            }
+          }
+          break;
+        case 'right':
+          if (this.body[0].x < 53) {
+            for (var i = 0; i < this.body.length; i++) {
+              this.body[i].x = this.body[i].x + 1;
+            }
+          }
+          break;
+        case 'down':
+          if (this.body[0].y < 85) {
+            for (var i = 0; i < this.body.length; i++) {
+              this.body[i].y = this.body[i].y + 1;
+            }
+          }
+          break;
+      }
+      this.init();
+    };
+    //创建飞机子弹
+    Plane.prototype.bollet = function (die) {
+      //检查地图上是否有子弹
+      if (this.planeBollets_elements != []) {
+//        console.log(this.planeBollets_elements);
+        for (var i = this.planeBollets_elements.length - 1; i >= 0; i--) {
+//          this.map.removeChild(this.planeBollets_elements[i]);
+          this.planeBollets_elements[i].remove();
+        }
+        this.planeBollets_elements = [];
+      }
+      if (die) {
+        console.log('进入die');
+        planeBolletMove = function () {
+          clearInterval(planeGiveNum);
+//          clearInterval(planeMoveNum);
+        }
+//        this.bollet();
+      } else {
+        var planeBody0 = this.body[0];
+        var planeBodyWidth = this.width;
+        var planeBodyHeight = this.height;
+        var planeBollets = [];
+//      window.PlaneBollets = planeBollets;
+        //创建飞机子弹
+        var planeGiveNum = setInterval(function () {
+          var planeLive = play1.plane.live;
+          var scare = document.getElementById('scare');
+          if (planeLive == 0) {
+            console.log('planegivenum发现游戏结束');
+//            play1.hinder.bollet('die');
+            clearInterval(planeGiveNum);
+            return;
+          }else if(parseInt(scare.innerText) == 100) {
+            console.log('planeGiveNum发现过关');
+//            play1.hinder.bollet('die');
+            clearInterval(planeGiveNum);
+            return;
+          }
+//          console.log('planegivenum');
+          var planeBollet = document.createElement('div');
+          planeBollet.style.width = planeBodyWidth + 'px';
+          planeBollet.style.height = planeBodyHeight + 'px';
+          planeBollet.style.backgroundColor = '#999';
+          planeBollet.style.left = planeBody0.x * planeBodyWidth + 'px';
+          planeBollet.style.top = planeBody0.y * planeBodyHeight + 'px';
+          var map = document.getElementById('map');
+          map.appendChild(planeBollet);
+          planeBollets.push(planeBollet);
+          this.planeBollets_elements.push(planeBollet);
+          var planeMoveNum = setInterval(planeBolletMove(planeBollets), 1000);
+          window.planeMoveNum = planeMoveNum;
+        }.bind(this), 500);
+        window.planeGiveNum = planeGiveNum;
+      }
+      ;
+    };
+      //子弹移动
+      var planeBolletMove = function (planeBollets) {
+        window.planeBollets = planeBollets;
+        for (var i = 0; i < planeBollets.length; i++) {
+          planeBollets[i].style.top = parseInt(planeBollets[i].style.top) - 20 + 'px';
+          //超出边界清除
+          if (parseInt(planeBollets[i].style.top) < 10) {
+            planeBollets[i].remove();
+          }
+          //打到障碍物
+          for (var j = 0; j < HinderBody.length; j++) {
+            var planeBollets_x = parseInt(planeBollets[i].style.left) / 5;
+            var planeBollets_y = parseInt(planeBollets[i].style.top) / 5;
+//            console.log(HinderBody[j].x);
+            if (planeBollets_x == HinderBody[j].x && planeBollets_y == HinderBody[j].y) {
+//              console.log('击中');
+              var scare = document.getElementById('scare');
+
+              if (parseInt(scare.innerText) == 100) {
+                var live = document.getElementById('live').innerText;
+                var map = document.getElementById('map');
+                map.innerHTML = "<p>恭喜过关</p>"+
+                    "<span>第二关</span>"+
+                    "<div id='record'>" +
+                    "<p>分数：<span id='scare'>100</span></p>"+
+                    "<p>生命：<span id='live'>"+live+"</span></p>"+
+                    "</div>";
+                play1.plane.bollet('die');
+                play1.direction('die');
+                if(planeMoveNum!=undefined){
+                  clearInterval(planeMoveNum);
+                }
+                if(planeGiveNum!=undefined){
+                  clearInterval(planeGiveNum);
+                }
+              } else {
+                scare.innerText = parseInt(scare.innerText) + 10;
+              }
+              play1.hinder.position();
+            }
+          }
+        }
+      };
+      window.planeBolletMove = planeBolletMove;
+    window.Plane = Plane;
+    //检测
+//    var p1 = new Plane(document.getElementById('map'));
+//    p1.init();
+  }());
+  //3 障碍物
+  (function () {
+    function Hinder(options) {
+      this.width = options.width || 5;
+      this.height = options.height || 5;
+      this.body = [
+        {x: 0, y: 0},//0
+        {x: 1, y: 0},//1
+        {x: 2, y: 0},//2
+        {x: 3, y: 0},//3
+        {x: 4, y: 0},//4
+        {x: 5, y: 0},
+        {x: 6, y: 0},//6
+        {x: 7, y: 0},
+        {x: 8, y: 0},//8
+        {x: 9, y: 0},
+        {x: 10, y: 0},//10
+        {x: 0, y: 1},
+        {x: 1, y: 1},//12
+        {x: 2, y: 1},
+        {x: 3, y: 1},//14
+        {x: 4, y: 1},
+        {x: 5, y: 1},//16
+        {x: 6, y: 1},
+        {x: 7, y: 1},//18
+        {x: 8, y: 1},
+        {x: 9, y: 1},//20
+        {x: 10, y: 1},
+        {x: 1, y: 2},//22
+        {x: 2, y: 2},
+        {x: 3, y: 2},//24
+        {x: 4, y: 2},
+        {x: 5, y: 2},//26
+        {x: 6, y: 2},
+        {x: 7, y: 2},//28
+        {x: 8, y: 2},
+        {x: 9, y: 2},//30
+        {x: 2, y: 3},
+        {x: 3, y: 3},//32
+        {x: 4, y: 3},
+        {x: 5, y: 3},//34
+        {x: 6, y: 3},
+        {x: 7, y: 3},//36
+        {x: 8, y: 3},
+        {x: 2, y: 4},//38
+        {x: 3, y: 4},
+        {x: 4, y: 4},//40
+        {x: 5, y: 4},
+        {x: 6, y: 4},//42
+        {x: 7, y: 4},
+        {x: 8, y: 4},//44
+        {x: 3, y: 5},
+        {x: 4, y: 5},//46
+        {x: 6, y: 5},
+        {x: 7, y: 5},//48
+        {x: 3, y: 6},
+        {x: 4, y: 6},//50
+        {x: 6, y: 6},
+        {x: 7, y: 6},//52
+      ];
+      this.elements = [];
+      this.map = options.map;
+      this.direction = '';
+    }
+
+    Hinder.prototype.init = function () {
+      //检查是否有障碍物
+      for (var i = this.elements.length - 1; i >= 0; i--) {
+        this.elements[i].remove();
+      }
+      this.elements = [];
+      for (var i = 0; i < this.body.length; i++) {
+        var hinderBody = document.createElement('div');
+        hinderBody.style.width = this.width + 'px';
+        hinderBody.style.height = this.height + 'px';
+        hinderBody.style.backgroundColor = '#666';
+        hinderBody.style.left = this.body[i].x * this.width + 'px';
+        hinderBody.style.top = this.body[i].y * this.height + 'px';
+        var map = document.getElementById('map');
+        map.appendChild(hinderBody);
+        this.elements.push(hinderBody);
+      }
+    };
+    //随机障碍物位置
+    Hinder.prototype.position = function () {
+      var hinderLeft = Math.floor(Math.random() * 50);
+      var hinderTop = Math.floor(Math.random() * 70);
+      this.body[0].x = hinderLeft;
+      this.body[0].y = hinderTop;
+      for (var i = 1; i < this.body.length; i++) {
+        if (i <= 10) {
+          this.body[i].x = hinderLeft + i;
+          this.body[i].y = hinderTop;
+        } else if (i <= 21) {
+          this.body[i].x = hinderLeft + i - 11;
+          this.body[i].y = hinderTop + 1;
+        } else if (i <= 30) {
+          this.body[i].x = hinderLeft + i - 21;
+          this.body[i].y = hinderTop + 2;
+        } else if (i <= 37) {
+          this.body[i].x = hinderLeft + i - 29;
+          this.body[i].y = hinderTop + 3;
+        } else if (i <= 44) {
+          this.body[i].x = hinderLeft + i - 36;
+          this.body[i].y = hinderTop + 4;
+        } else if (i <= 46) {
+          this.body[i].x = hinderLeft + i - 42;
+          this.body[i].y = hinderTop + 5;
+        } else if (i <= 48) {
+          this.body[i].x = hinderLeft + i - 41;
+          this.body[i].y = hinderTop + 5;
+        } else if (i <= 50) {
+          this.body[i].x = hinderLeft + i - 46;
+          this.body[i].y = hinderTop + 6;
+        } else if (i <= 52) {
+          this.body[i].x = hinderLeft + i - 45;
+          this.body[i].y = hinderTop + 6;
+        }
+      }
+      window.HinderBody = this.body;
+      this.init();
+    };
+    //创建障碍物子弹
+    Hinder.prototype.bollet = function (die) {
+      if(!die){
+      var hinderBody41 = this.body[41];
+      var hinderBodyWidth = this.width;
+      var hinderBodyHeight = this.height;
+      var hinderBollets1 = [];
+      var target_left = [];
+      //创建障碍物子弹1
+      var hinderNum1 = setInterval(function () {
+        var hinderBollet = document.createElement('div');
+        hinderBollet.style.width = hinderBodyWidth + 'px';
+        hinderBollet.style.height = hinderBodyHeight + 'px';
+        hinderBollet.style.backgroundColor = '#000';
+        hinderBollet.style.left = hinderBody41.x * hinderBodyWidth + 'px';
+        hinderBollet.style.top = hinderBody41.y * hinderBodyHeight + 'px';
+        var map = document.getElementById('map');
+        map.appendChild(hinderBollet);
+        hinderBollets1.push(hinderBollet);
+//        planeBollet.style.top = parseInt(planeBollet.style.top) - 5 + 'px';
+        var t_left = parseInt(play1.plane.body[0].x);
+        t_left = t_left<=6?-10:t_left;
+        t_left = t_left>=53?70:t_left;
+        target_left.push(t_left);
+        var planeLive = play1.plane.live;
+        var scare = document.getElementById('scare');
+        if (planeLive == 0) {
+          console.log('hinderNum1发现游戏结束');
+//            play1.hinder.bollet('die');
+          clearInterval(hinderNum1);
+          return;
+        }else if(parseInt(scare.innerText) == 100) {
+          console.log('hinderNum1发现过关');
+//            play1.hinder.bollet('die');
+          clearInterval(hinderNum1);
+          return;
+        }
+        hinderBolletMove(hinderBollets1, target_left);
+      }.bind(this), 1000);
+      //子弹移动
+      var hinderBolletMove = function (hinderBollets, target_left) {
+//        console.log(hinderBollets.length + '  ' + target_left.length);
+//        console.log(hinderBollets[0].style.left + '  ' + target_left[0]);
+        var planeLive = play1.plane.live;
+        var scare = document.getElementById('scare');
+        if (planeLive == 0) {
+          console.log('hinderBolletMove发现游戏结束');
+//            play1.hinder.bollet('die');
+          clearInterval(hinderBolletMove);
+          return;
+        }else if(parseInt(scare.innerText) == 100) {
+          console.log('hinderBolletMove发现过关');
+//            play1.hinder.bollet('die');
+          clearInterval(hinderBolletMove);
+          return;
+        }
+//        接收并判断子弹移动方向
+        for (var i = 0; i < hinderBollets.length; i++) {
+          hinderBollets[i].style.top = parseInt(hinderBollets[i].style.top) + 20 + 'px';
+          var hinderBollets_left = parseInt(hinderBollets[i].style.left) / 5;
+//          var left_arr = [hinderBollets_left-10,hinderBollets_left-5,hinderBollets_left,hinderBollets_left+5,hinderBollets_left+10];
+          var step = (target_left[i] - hinderBollets_left) > 0 ? 10 : (-10);
+          hinderBollets[i].style.left = hinderBollets_left * 5 + step + 'px';
+          //超出边界清除
+          if (parseInt(hinderBollets[i].style.top) > 490) {
+            hinderBollets[i].remove();
+            hinderBollets.splice(i, 1);
+            target_left.splice(i, 1);
+          }
+          //打到飞机
+          var PlaneBody = play1.plane.body;
+          for (var j = 0; j < PlaneBody.length; j++) {
+            var hinderBollets_x = parseInt(hinderBollets[i].style.left) / 5;
+            var hinderBollets_y = parseInt(hinderBollets[i].style.top) / 5;
+//            console.log(HinderBody[j].x);
+            if (hinderBollets_x == PlaneBody[j].x && hinderBollets_y == PlaneBody[j].y) {
+              console.log('击中飞机');
+              var planeLive = play1.plane.live;
+              if (planeLive == 0) {
+                console.log('发现游戏结束');
+                play1.hinder.bollet('die');
+                clearInterval(hinderNum1);
+                clearInterval(planeGiveNum);
+              }
+              play1.plane.body = [
+                {x: 26, y: 0 + 84},
+                {x: 26, y: 1 + 84},
+                {x: 26, y: 2 + 84},
+                {x: 26, y: 3 + 84},
+                {x: 26, y: 4 + 84},
+                {x: 26, y: 5 + 84},
+                {x: 26, y: 6 + 84},
+                {x: 26, y: 7 + 84},
+                {x: 26, y: 8 + 84},
+                {x: 26, y: 9 + 84},
+                {x: 26, y: 10 + 84},
+                {x: 26, y: 11 + 84},
+                {x: 26, y: 12 + 84},
+                {x: 26, y: 13 + 84},
+                {x: 26, y: 14 + 84},
+                {x: 25, y: 1 + 84},
+                {x: 27, y: 1 + 84},
+                {x: 25, y: 2 + 84},
+                {x: 27, y: 2 + 84},
+                {x: 24, y: 3 + 84},
+                {x: 25, y: 3 + 84},
+                {x: 27, y: 3 + 84},
+                {x: 28, y: 3 + 84},
+                {x: 23, y: 4 + 84},
+                {x: 24, y: 4 + 84},
+                {x: 25, y: 4 + 84},
+                {x: 27, y: 4 + 84},
+                {x: 28, y: 4 + 84},
+                {x: 29, y: 4 + 84},
+                {x: 22, y: 5 + 84},
+                {x: 23, y: 5 + 84},
+                {x: 24, y: 5 + 84},
+                {x: 25, y: 5 + 84},
+                {x: 27, y: 5 + 84},
+                {x: 28, y: 5 + 84},
+                {x: 29, y: 5 + 84},
+                {x: 30, y: 5 + 84},
+                {x: 21, y: 6 + 84},
+                {x: 22, y: 6 + 84},
+                {x: 23, y: 6 + 84},
+                {x: 24, y: 6 + 84},
+                {x: 25, y: 6 + 84},
+                {x: 27, y: 6 + 84},
+                {x: 28, y: 6 + 84},
+                {x: 29, y: 6 + 84},
+                {x: 30, y: 6 + 84},
+                {x: 31, y: 6 + 84},
+                {x: 20, y: 7 + 84},
+                {x: 21, y: 7 + 84},
+                {x: 22, y: 7 + 84},
+                {x: 23, y: 7 + 84},
+                {x: 24, y: 7 + 84},
+                {x: 25, y: 7 + 84},
+                {x: 27, y: 7 + 84},
+                {x: 28, y: 7 + 84},
+                {x: 29, y: 7 + 84},
+                {x: 30, y: 7 + 84},
+                {x: 31, y: 7 + 84},
+                {x: 32, y: 7 + 84},
+                {x: 25, y: 8 + 84},
+                {x: 27, y: 8 + 84},
+                {x: 25, y: 9 + 84},
+                {x: 27, y: 9 + 84},
+                {x: 25, y: 10 + 84},
+                {x: 27, y: 10 + 84},
+                {x: 25, y: 11 + 84},
+                {x: 27, y: 11 + 84},
+                {x: 24, y: 12 + 84},
+                {x: 25, y: 12 + 84},
+                {x: 27, y: 12 + 84},
+                {x: 28, y: 12 + 84},
+                {x: 23, y: 13 + 84},
+                {x: 24, y: 13 + 84},
+                {x: 25, y: 13 + 84},
+                {x: 27, y: 13 + 84},
+                {x: 28, y: 13 + 84},
+                {x: 29, y: 13 + 84},
+                {x: 22, y: 14 + 84},
+                {x: 23, y: 14 + 84},
+                {x: 24, y: 14 + 84},
+                {x: 25, y: 14 + 84},
+                {x: 27, y: 14 + 84},
+                {x: 28, y: 14 + 84},
+                {x: 29, y: 14 + 84},
+                {x: 30, y: 14 + 84},
+              ];
+              play1.plane.init('#888', 'die');
+              clearInterval(planeGiveNum);
+              //setInterval(planeBolletMove(planeBollets),1000);
+              play1.plane.bollet();
+            }
+          }
+        }
+      }
+    }
+    };
+  //      setInterval(bolletMove(planeBollets),1000);
+  window.Hinder = Hinder;
+  //检测
+  //    var h1 = new Hinder(document.getElementById('map'));
+  //    h1.init();
+  }());
+  //4 游戏对象
+  (function () {
+    function Player(options) {
+      this.plane = options.plane;
+      this.hinder = options.hinder;
+      this.map = options.map;
+    }
+    Player.prototype.init = function (die) {
+      if (die == '[]') {
+        this.plane.body = [];
+        this.hinder.body = [
+          {x: 0, y: 0}
+        ];
+        this.plane.init(die);
+//        this.hinder.move(die);
+      } else {
+        this.plane.init();
+        this.plane.move();
+        this.plane.bollet();
+        this.hinder.bollet();
+        this.hinder.position();
+        this.direction();
+        this.playing();
+      }
+    };
+    Player.prototype.direction = function (die) {
+      var that = this;
+      if (!die) {
+        document.onkeydown = function (e) {
+          var e = window.event || e;
+          switch (true) {
+            case e.keyCode == 37:
+              that.plane.direction = 'left';
+              break;
+            case e.keyCode == 39:
+              that.plane.direction = 'right';
+              break;
+            case e.keyCode == 38:
+              that.plane.direction = 'up';
+              break;
+            case e.keyCode == 40:
+              that.plane.direction = 'down';
+              break;
+          }
+//        console.log(that.plane.direction);
+          that.plane.move();
+        };
+      } else {
+        document.onkeydown = function () {
+          console.log('没有飞机了');
+        }
+      }
+
+    };
+    Player.prototype.playing = function () {
+
+      var hinderBody = this.hinder.body;
+      //飞机打到障碍物
+//      障碍物撞到飞机
+      var playNum = setInterval(function () {
+        var planeLive = play1.plane.live;
+        if (planeLive == 0) {
+          console.log('发现游戏结束');
+          clearInterval(playNum);
+//          this.body = [];
+//          play1.plane.body=[];
+        } else {
+          var planeBody = play1.plane.body;
+          var hinderBody = play1.hinder.body;
+          var flag = false;
+          for (var i = 0; i < hinderBody.length; i++) {
+            for (var j = 0; j < planeBody.length; j++) {
+              if (hinderBody[i].x == planeBody[j].x && hinderBody[i].y == planeBody[j].y) {
+//              console.log('击中飞机');
+                flag = true;
+              }
+            }
+          }
+          if (flag) {
+            play1.plane.body = [
+              {x: 26, y: 0 + 84},
+              {x: 26, y: 1 + 84},
+              {x: 26, y: 2 + 84},
+              {x: 26, y: 3 + 84},
+              {x: 26, y: 4 + 84},
+              {x: 26, y: 5 + 84},
+              {x: 26, y: 6 + 84},
+              {x: 26, y: 7 + 84},
+              {x: 26, y: 8 + 84},
+              {x: 26, y: 9 + 84},
+              {x: 26, y: 10 + 84},
+              {x: 26, y: 11 + 84},
+              {x: 26, y: 12 + 84},
+              {x: 26, y: 13 + 84},
+              {x: 26, y: 14 + 84},
+              {x: 25, y: 1 + 84},
+              {x: 27, y: 1 + 84},
+              {x: 25, y: 2 + 84},
+              {x: 27, y: 2 + 84},
+              {x: 24, y: 3 + 84},
+              {x: 25, y: 3 + 84},
+              {x: 27, y: 3 + 84},
+              {x: 28, y: 3 + 84},
+              {x: 23, y: 4 + 84},
+              {x: 24, y: 4 + 84},
+              {x: 25, y: 4 + 84},
+              {x: 27, y: 4 + 84},
+              {x: 28, y: 4 + 84},
+              {x: 29, y: 4 + 84},
+              {x: 22, y: 5 + 84},
+              {x: 23, y: 5 + 84},
+              {x: 24, y: 5 + 84},
+              {x: 25, y: 5 + 84},
+              {x: 27, y: 5 + 84},
+              {x: 28, y: 5 + 84},
+              {x: 29, y: 5 + 84},
+              {x: 30, y: 5 + 84},
+              {x: 21, y: 6 + 84},
+              {x: 22, y: 6 + 84},
+              {x: 23, y: 6 + 84},
+              {x: 24, y: 6 + 84},
+              {x: 25, y: 6 + 84},
+              {x: 27, y: 6 + 84},
+              {x: 28, y: 6 + 84},
+              {x: 29, y: 6 + 84},
+              {x: 30, y: 6 + 84},
+              {x: 31, y: 6 + 84},
+              {x: 20, y: 7 + 84},
+              {x: 21, y: 7 + 84},
+              {x: 22, y: 7 + 84},
+              {x: 23, y: 7 + 84},
+              {x: 24, y: 7 + 84},
+              {x: 25, y: 7 + 84},
+              {x: 27, y: 7 + 84},
+              {x: 28, y: 7 + 84},
+              {x: 29, y: 7 + 84},
+              {x: 30, y: 7 + 84},
+              {x: 31, y: 7 + 84},
+              {x: 32, y: 7 + 84},
+              {x: 25, y: 8 + 84},
+              {x: 27, y: 8 + 84},
+              {x: 25, y: 9 + 84},
+              {x: 27, y: 9 + 84},
+              {x: 25, y: 10 + 84},
+              {x: 27, y: 10 + 84},
+              {x: 25, y: 11 + 84},
+              {x: 27, y: 11 + 84},
+              {x: 24, y: 12 + 84},
+              {x: 25, y: 12 + 84},
+              {x: 27, y: 12 + 84},
+              {x: 28, y: 12 + 84},
+              {x: 23, y: 13 + 84},
+              {x: 24, y: 13 + 84},
+              {x: 25, y: 13 + 84},
+              {x: 27, y: 13 + 84},
+              {x: 28, y: 13 + 84},
+              {x: 29, y: 13 + 84},
+              {x: 22, y: 14 + 84},
+              {x: 23, y: 14 + 84},
+              {x: 24, y: 14 + 84},
+              {x: 25, y: 14 + 84},
+              {x: 27, y: 14 + 84},
+              {x: 28, y: 14 + 84},
+              {x: 29, y: 14 + 84},
+              {x: 30, y: 14 + 84},
+            ];
+            play1.plane.init('#888', 'die');
+          }
+          ;
+        }
+      }.bind(this), 500);
+
+
+    };
+
+    window.Player = Player;
+    //检测
+//    var play1 = new Player()
+  }());
+  //开始游戏
+  var currentMap = document.getElementById('map');
+  var play1 = new Player({
+    plane: new Plane({map: currentMap}),
+    hinder: new Hinder({map: currentMap}),
+    map: currentMap
+  });
+
+  var btn = document.getElementById('btn');
+  var p = document.getElementsByTagName('p')[0];
+  var span = document.getElementsByTagName('span')[0];
+  var stop = document.getElementById('stop');
+  var turnUp = document.getElementById('turnUp');
+  var turnDown = document.getElementById('turnDown');
+  var turnLeft = document.getElementById('turnLeft');
+  var turnRight = document.getElementById('turnRight');
+  var flag = true;
+  btn.onclick = function () {
+    if (flag) {
+      p.className = 'active';
+      span.className = 'active';
+      btn.innerText = '重新开始';
+      play1.init();
+      flag = false;
+//      console.log(flag);
+    } else {
+      location.reload();
+      flag = true;
+    }
+  };
+  stop.onclick = function () {
+    if (flag == false) {
+//        play1.init('[]');
+      var p = document.getElementsByTagName('p')[0];
+      p.className = '';
+      span.className = '';
+      p.innerText = '重新开始';
+      flag = true;
+    }
+  };
+  stop.disabled = 'true';
+</script>
+</body>
+</html>
