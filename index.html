@@ -636,10 +636,14 @@
           hinderBollets[i].style.left = hinderBollets_left * 5 + step + 'px';
           //超出边界清除
           if (parseInt(hinderBollets[i].style.top) > 490) {
-            hinderBollets[i].remove(parseInt(hinderBollets[i].style.left) < 0 || parseInt(hinderBollets[i].style.left) > 300);
+            hinderBollets[i].remove();
             hinderBollets.splice(i, 1);
             target_left.splice(i, 1);
-          }else if()
+          }else if(parseInt(hinderBollets[i].style.left) < 0 || parseInt(hinderBollets[i].style.left) > 300){
+            hinderBollets[i].remove();
+            hinderBollets.splice(i, 1);
+            target_left.splice(i, 1);
+          }
           //打到飞机
           var PlaneBody = play1.plane.body;
           for (var j = 0; j < PlaneBody.length; j++) {
